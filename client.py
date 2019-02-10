@@ -3,10 +3,12 @@ import sys
 import pygame
 import time
 import lzma
+from pynput.mouse import Button, Controller
 
 #HOST, PORT = "192.168.43.244", 9010
-HOST, PORT = "127.0.0.1", 9012
-RESOLUTION = (1366, 768)
+HOST_SS, PORT_SS = "192.168.43.228", 9000
+HOST_MP, PORT_MP = "192.168.43.228", 9001
+RESOLUTION = (640, 480)
 screen = pygame.display.set_mode(RESOLUTION)
 pygame.display.set_caption('PSee')
 white = (255, 64, 64)
@@ -24,15 +26,29 @@ def get_image_from_server(sock, file):
     file.write(lzma.decompress(received))
     file.seek(0)
 
+def open_socket_for_mouse():
+    print ("inside mouse controller")
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.connect((HOST_MP, PORT_MP))
+        x = mouse.position[0]
+        y = mouse.position[1]
+        x = "%05d" % x
+        y = "%05d" % y
+        sock.sendall(x.encode())
+        sock.sendall(y.encode())
+
 # Create a socket (SOCK_STREAM means a TCP socket)
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
     # Connect to server and send data
-    sock.connect((HOST, PORT))
+    sock.connect((HOST_SS, PORT_SS))
     # Receive data from the server and shut down
-    file = open('screennew.png', 'wb')
+    file = open('screennew.jpg', 'wb')
+    mouse = Controller()
     while True:
         get_image_from_server(sock, file)
-        img = pygame.image.load('screennew.png')
+        img = pygame.image.load('screennew.jpg')
         screen.fill((white))
+        img = pygame.transform.scale(img, RESOLUTION)
         screen.blit(img, (0,0))
         pygame.display.flip()
+        open_socket_for_mouse()
