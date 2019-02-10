@@ -6,7 +6,7 @@ import lzma
 
 #HOST, PORT = "192.168.43.244", 9010
 HOST, PORT = "127.0.0.1", 9010
-RESOLUTION = (1366, 768)
+RESOLUTION = (640, 480)
 screen = pygame.display.set_mode(RESOLUTION)
 pygame.display.set_caption('PSee')
 white = (255, 64, 64)
