@@ -2,7 +2,8 @@
 
 import socketserver
 import mss
- 
+import lzma
+
 
 # Create a Request Handler
 
@@ -10,7 +11,7 @@ import mss
 
 class MyTCPRequestHandler(socketserver.StreamRequestHandler):
 
- 
+
 
 # handle() method will be called once per connection
 
@@ -18,32 +19,25 @@ class MyTCPRequestHandler(socketserver.StreamRequestHandler):
 
         # Receive and print the data received from client
 
-        print("Recieved one request from {}".format(self.client_address[0]))
-
-        msg = self.rfile.readline().strip()
-
-        print("Data Recieved from client is:".format(msg))
-
-        print(msg)  
-
+        print("Received one request from {}".format(self.client_address[0]))
         # Send some data to client
-        while True: 
+        while True:
             with mss.mss() as sct:
                 file = sct.shot(output="img.jpg")
                 sct.save(file)
             file = open('img.jpg', 'rb')
-            content = file.read()
+            content = lzma.compress(file.read())
             size = len(content)
             size = "%018d" % size
             print (size)
             self.wfile.write(size.encode())
             self.wfile.write(content)
-            file.close()                                            
+            file.close()
 # Create a TCP Server instance
 
 aServer = socketserver.TCPServer(('', 9010), MyTCPRequestHandler, bind_and_activate=True)
 
- 
+
 
 # Listen for ever
 
