@@ -26,10 +26,11 @@ class MyTCPRequestHandler(socketserver.StreamRequestHandler):
                 file = sct.shot(output="img.jpg")
                 sct.save(file)
             file = open('img.jpg', 'rb')
-            content = lzma.compress(file.read())
+            data = file.read()
+            content = lzma.compress(data)
             size = len(content)
             size = "%018d" % size
-            print (size)
+            print("orig: %d, compressed: %d" % (len(data), len(content)))
             self.wfile.write(size.encode())
             self.wfile.write(content)
             file.close()

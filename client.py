@@ -27,7 +27,6 @@ def get_image_from_server(sock, file):
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
     # Connect to server and send data
     sock.connect((HOST, PORT))
-    sock.sendall(bytes(data + "\n", "utf-8"))
     # Receive data from the server and shut down
     file = open('screennew.png', 'wb')
     while True:
