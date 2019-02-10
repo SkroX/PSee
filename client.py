@@ -34,6 +34,5 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         get_image_from_server(sock, file)
         img = pygame.image.load('screennew.png')
         screen.fill((white))
-        img = pygame.transform.scale(img, RESOLUTION)
         screen.blit(img, (0,0))
         pygame.display.flip()
