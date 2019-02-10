@@ -1,15 +1,18 @@
 import socket
 import sys
 import pygame
-from pynput.mouse import Button, Controller
+import time
+import lzma
 
-HOST, PORT = "127.0.0.1", 9013
-data = " ".join(sys.argv[1:])
-screen = pygame.display.set_mode((1600, 900))
+#HOST, PORT = "192.168.43.244", 9010
+HOST, PORT = "127.0.0.1", 9010
+RESOLUTION = (1366, 768)
+screen = pygame.display.set_mode(RESOLUTION)
 pygame.display.set_caption('PSee')
 white = (255, 64, 64)
 
 def get_image_from_server(sock, file):
+    t = time.time()
     size = int(sock.recv(18).decode('utf-8'))
     print("size of image: ", size)
     received = b''
@@ -17,26 +20,20 @@ def get_image_from_server(sock, file):
         r = sock.recv(size)
         size -= len(r)
         received += r
-    print("Received: {}".format(len(received)))
-    file.write(received)
+    print("Received: {}, time: {}".format(len(received), time.time() - t))
+    file.write(lzma.decompress(received, format=FORMAT_RAW))
     file.seek(0)
 
 # Create a socket (SOCK_STREAM means a TCP socket)
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
     # Connect to server and send data
     sock.connect((HOST, PORT))
-    sock.sendall(bytes(data + "\n", "utf-8"))
     # Receive data from the server and shut down
-    file = open('screennew.jpg', 'wb')
-    mouse = Controller()
+    file = open('screennew.png', 'wb')
     while True:
         get_image_from_server(sock, file)
-        img = pygame.image.load('screennew.jpg')
+        img = pygame.image.load('screennew.png')
         screen.fill((white))
-        img = pygame.transform.scale(img, (1600, 900))
+        img = pygame.transform.scale(img, RESOLUTION)
         screen.blit(img, (0,0))
         pygame.display.flip()
-        x = mouse.position[0]
-        y = mouse.position[1]
-
-print("Sent:     {}".format(data))
