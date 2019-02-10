@@ -1,16 +1,11 @@
-# import the socketserver module of Python
-
 import socketserver
 import mss
 import lzma
 import pygame
+from threading import Thread
 
 
-# Create a Request Handler
-
-# In this TCP server case - the request handler is derived from StreamRequestHandler
-
-class MyTCPRequestHandler(socketserver.StreamRequestHandler):
+class ScreenshotHandler(socketserver.StreamRequestHandler):
 
     def handle(self):
         # Receive and print the data received from client
@@ -34,9 +29,21 @@ class MyTCPRequestHandler(socketserver.StreamRequestHandler):
             self.wfile.write(content)
             file.close()
 
+class MouseHandler(socketserver.StreamRequestHandler):
+
+    def handle(self):
+        with open("hello from the other thread", "w") as f:
+            f.write('hi!')
+        print("fdjaklfjdasklsjafdskdljaslkfjaksl;jfdklsafjdkljasdl;fkjfas;l")
+        print(self.rfile.read())
+
 # Create a TCP Server instance
-aServer = socketserver.TCPServer(('', 9012), MyTCPRequestHandler, bind_and_activate=True)
+ScreenshotServer = socketserver.TCPServer(('', 9000), ScreenshotHandler, bind_and_activate=True)
+MouseServer = socketserver.TCPServer(('', 9001), ScreenshotHandler, bind_and_activate=True)
 
 # Listen for ever
 print("Starting server!")
-aServer.serve_forever()
+screenshot_thread = Thread(target=ScreenshotServer.serve_forever)
+screenshot_thread.start()
+MouseServer.serve_forever()
+
