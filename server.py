@@ -1,9 +1,7 @@
 # import the socketserver module of Python
 
 import socketserver
-import pyscreenshot as ps
-import matplotlib.image as img
-import json
+import mss
  
 
 # Create a Request Handler
@@ -30,9 +28,10 @@ class MyTCPRequestHandler(socketserver.StreamRequestHandler):
 
         # Send some data to client
         while True: 
-            im = ps.grab()
-            im.save('sa.png')
-            file = open('sa.png', 'rb')
+            with mss.mss() as sct:
+                file = sct.shot(output="img.jpg")
+                sct.save(file)
+            file = open('img.jpg', 'rb')
             content = file.read()
             size = len(content)
             size = "%018d" % size
@@ -42,7 +41,7 @@ class MyTCPRequestHandler(socketserver.StreamRequestHandler):
             file.close()                                            
 # Create a TCP Server instance
 
-aServer = socketserver.TCPServer(('', 9000), MyTCPRequestHandler, bind_and_activate=True)
+aServer = socketserver.TCPServer(('', 9010), MyTCPRequestHandler, bind_and_activate=True)
 
  
 
